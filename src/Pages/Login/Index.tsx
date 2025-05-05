@@ -1,123 +1,99 @@
-import {useEffect} from 'react';
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Bell, Menu as MenuIcon, ChevronDown, User } from 'lucide-react';
+import React, { useState } from "react";
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 
-// 1. Fade-in Sticky Header with Slide Down Navigation
-export const Header1: React.FC = () => (
-  <motion.header
-    initial={{ y: -50, opacity: 0 }}
-    animate={{ y: 0, opacity: 1 }}
-    transition={{ duration: 0.5 }}
-    className="sticky top-0 bg-white shadow-md py-4 px-6 md:px-12 z-50"
-  >
-    <div className="max-w-7xl mx-auto flex justify-between items-center">
-      <motion.div whileHover={{ scale: 1.1 }} className="text-2xl font-extrabold">
-        MyBrand
-      </motion.div>
-      <nav className="hidden md:flex space-x-8">
-        {['Home','About','Services','Contact'].map(link => (
-          <motion.a
-            key={link}
-            href="#"
-            whileHover={{ color: '#3B82F6' }}
-            className="text-gray-700 font-medium hover:underline"
-          >
-            {link}
-          </motion.a>
-        ))}
-      </nav>
-      <div className="md:hidden">
-        <MenuIcon size={24} />
-      </div>
-    </div>
-  </motion.header>
-);
+const Login: React.FC = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  // 1. Inicializa o Facebook SDK
-  useEffect(() => {
-    window.fbAsyncInit = function () {
-      window.FB.init({
-        appId: 'SEU_APP_ID_DO_FACEBOOK', // substitua pelo seu App ID real
-        cookie: true,
-        xfbml: true,
-        version: 'v19.0',
-      });
-    };
-  }, []);
-
-  const handleSubmit = (e: any) => {
+  const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log('Email:', email);
-    console.log('Senha:', password);
+    try {
+      const { data,status } = await axios.post(
+        "http://localhost:3000/user/loginOnPlataform",
+        { email, password },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      if (status === 201){
+        localStorage.setItem("token", data.token);
+        console.log("✅ Login realizado:", data);
+        navigate("/polls");
+      }
+
+    } catch (error: any) {
+      console.error(error);
+    }
   };
 
-  // 2. Função de login com Facebook
-  const handleFacebookLogin = () => {
-    window.FB.login((response: any) => {
-      if (response.authResponse) {
-        window.FB.api('/me', { fields: 'name,email' }, function (userInfo: any) {
-          console.log('Usuário logado com Facebook:', userInfo);
-          alert(`Bem-vindo, ${userInfo.name}!`);
-        });
-      } else {
-        console.log('Login com Facebook cancelado ou não autorizado');
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) return;
+    try {
+      const { data,status } = await axios.post(
+        "http://localhost:3000/user/loginGoogle",
+        {},
+        { headers: { Authorization: `Bearer ${credentialResponse.credential}` } }
+      );
+      if (status === 201){
+        localStorage.setItem("token",`${credentialResponse.credential}` );
+        console.log("✅ Google login:", data);
+        navigate("/polls");
       }
-    }, { scope: 'email' });
+    } catch (error: any) {
+      console.error(error);
+    }
   };
 
   return (
-    
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <Header1></Header1>
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block mb-1 font-medium">Email</label>
-            <input
-              type="email"
-              className="w-full border border-gray-300 p-2 rounded-lg"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="mb-6">
-            <label className="block mb-1 font-medium">Senha</label>
-            <input
-              type="password"
-              className="w-full border border-gray-300 p-2 rounded-lg"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+    <div className="h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md p-8 bg-white rounded-3xl shadow-xl">
+        <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800">Login</h1>
+        <div className="space-y-4">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Senha"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
           <button
-            type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition"
+            onClick={handleLogin}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold transition hover:bg-blue-700"
           >
             Entrar
           </button>
-        </form>
-
-        {/* Botão de login com Facebook */}
-        <div className="mt-4 text-center">
-          <p className="text-gray-500">ou</p>
-          <button
-            onClick={handleFacebookLogin}
-            className="mt-2 w-full bg-blue-700 text-white p-2 rounded-lg hover:bg-blue-800 transition"
-          >
-            Entrar com Facebook
-          </button>
+          <div className="flex justify-center space-x-4 mt-4">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => console.error("Erro ao logar com Google")}
+              useOneTap
+              shape="pill"
+              width="100%"
+              text="signin_with"
+              theme="outline"
+            />
+          </div>
+          <div className="mt-4 text-center">
+            <span className="text-gray-600">Ainda não tem uma conta?</span>{" "}
+            <Link
+              to="/Register"
+              className="text-blue-600 font-semibold hover:text-blue-700"
+            >
+              Registre-se aqui
+            </Link>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default Login;
