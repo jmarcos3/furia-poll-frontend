@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 interface Option {
   id: string;
@@ -61,7 +62,7 @@ const Polls: React.FC = () => {
     
     console.log(token)
     if (!token) {
-      navigate('/login');
+      navigate('/');
       return;
     }
 
@@ -73,21 +74,11 @@ const Polls: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      alert(response.data.message);
+      toast.success("Voto computado com sucesso");
       // Atualiza a lista após o voto
       fetchPolls(currentPage);
     } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response) {
-        // Exibe mensagem específica de conflito (usuário já votou)
-        if (error.response.status === 409 && error.response.data?.message) {
-          alert(error.response.data.message);
-        } else {
-          alert('Erro ao registrar voto!');
-        }
-      } else {
-        alert('Erro ao registrar voto!');
-      }
-      console.error('Erro ao registrar voto:', error);
+      toast.error(error.response.data.message); 
     }
   };
 
@@ -97,7 +88,7 @@ const Polls: React.FC = () => {
         <button
           onClick={() => {
             localStorage.removeItem('token');
-            navigate('/login');
+            navigate('/');
           }}
           className="absolute top-0 left-0 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition"
         >

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -23,7 +24,7 @@ const Login: React.FC = () => {
       }
 
     } catch (error: any) {
-      console.error(error);
+      toast.error(error.response.data.message);
     }
   };
 

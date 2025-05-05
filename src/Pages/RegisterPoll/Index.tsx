@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const RegisterPoll: React.FC = () => {
   const [title, setTitle] = useState('');
@@ -30,32 +31,31 @@ const RegisterPoll: React.FC = () => {
 
     const token = localStorage.getItem('token');
     if (!token) {
-      navigate('/login');
+      navigate('/');
       return;
     }
 
     try {
-      const { data } = await axios.post(
+      const { status } = await axios.post(
         'http://localhost:3000/poll',
         { title, description, options },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setMessage(`Enquete criada com sucesso! ID: ${data.pollId}`);
-      // Reset form
-      setTitle('');
-      setDescription('');
-      setOptions(['']);
-      // Redirecionar após 2s para a lista de enquetes
-      setTimeout(() => navigate('/Polls'), 2000);
-    } catch (err: any) {
-      console.error('Erro ao criar enquete:', err);
-      setError(err.response?.data?.message || 'Erro ao criar enquete.');
+      if (status === 201){
+        toast.success("Poll criada com sucesso!");
+        setTitle('');
+        setDescription('');
+        setOptions(['']);
+        navigate("/polls")
+      }
+
+    } catch (error: any) {
+      toast.error(error.response.data.message);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 relative">
-      {/* Botão Voltar */}
       <button
         onClick={() => navigate('/Polls')}
         className="fixed top-4 left-4 bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg shadow transition"

@@ -19,11 +19,10 @@ const Register: React.FC = () => {
       );
       if (status === 201){
         toast.success("Usuário Cadastrado com sucesso!");
-        navigate("/login"); // Redireciona para a página de login após 2 segundos
+        navigate("/"); 
  
       }
     } catch (error: any) {
-      console.log(error)
       toast.error(error.response.data.message);
     }
   };
@@ -64,7 +63,7 @@ const Register: React.FC = () => {
           <div className="mt-4 text-center">
             <span className="text-gray-600">Já tem uma conta?</span>{" "}
             <a
-              href="/login"
+              href="/"
               className="text-blue-600 font-semibold hover:text-blue-700"
             >
               Faça login aqui
