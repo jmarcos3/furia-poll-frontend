@@ -1,6 +1,6 @@
 # 🗳️ PollsApp Frontend
 
-A Single-Page Application built with **React**, **TypeScript** and **Vite** that consumes the PollsApp backend API (🔗 [PollsApp Backend](https://github.com/jmarcos3/PollsApp-backend)). Features include:
+A Single-Page Application built with **React**, **TypeScript** and **Vite** that consumes the PollsApp backend API (🔗 [PollsApp Backend](https://github.com/jmarcos3/pollsApp-backend)). Features include:
 
 - Axios-powered HTTP requests for creating, listing and voting on polls  
 - Client-side pagination for seamless navigation  
@@ -31,4 +31,4 @@ Working on this frontend taught me how to:
 ## 🔗 Backend
 
 The backend API powering this app is available at:  
-🔗 [https://github.com/jmarcos3/PollsApp-backend](https://github.com/jmarcos3/PollsApp-backend)
+🔗 [https://github.com/jmarcos3/pollsApp-backend](https://github.com/jmarcos3/pollsApp-backend)
